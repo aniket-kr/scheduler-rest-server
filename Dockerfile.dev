@@ -1,0 +1,19 @@
+FROM node:21.5-bookworm-slim
+
+WORKDIR /usr/src/rest-server
+
+RUN apt update -y
+
+# install git & curl
+RUN apt install git curl -y
+
+# install & configure fish shell
+RUN apt install fish -y && \
+    curl -L https://get.oh-my.fish > install_omf && \
+    fish install_omf --noninteractive && \
+    fish -c "omf install agnoster"
+
+# install bun
+RUN npm install -g bun
+
+CMD [ "tail", "-f", "/dev/null" ]

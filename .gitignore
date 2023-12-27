@@ -1,0 +1,71 @@
+# Dependency directories
+node_modules/
+
+# Logs
+logs
+_.log
+npm-debug.log_
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Caches
+.cache
+
+# Diagnostic reports (https://nodejs.org/api/report.html)
+report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
+
+# nyc test coverage
+.nyc_output
+
+# Compiled binary addons (https://nodejs.org/api/addons.html)
+build/Release
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# dotenv environment variable files
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# bun
+
+# bun cache and history
+.bun_cache/
+.bun_history/
+
+# Docker
+
+# Docker configurations
+.docker/
+docker-compose.override.yml
+docker-compose.yml
+
+# Visual Studio Code
+
+# Visual Studio Code configurations
+.vscode/
+!/.vscode/settings.json
+!/.vscode/extensions.json
+!/.vscode/launch.json
+!/.vscode/tasks.json
+
+# Version control history
+.history/
+
+# OS specific files
+.DS_Store
+Thumbs.db
