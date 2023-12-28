@@ -1,8 +1,10 @@
 import { Router } from 'express';
 
+import { authRouter } from './auth.router';
+
 const router = Router();
 
-// routers get registered here
+router.use('/auth', authRouter);
 
 const baseRouter = router;
 export default baseRouter;

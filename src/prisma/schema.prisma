@@ -1,0 +1,148 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URI")
+}
+
+enum Day {
+    MON
+    TUE
+    WED
+    THU
+    FRI
+    SAT
+    SUN
+}
+
+model Organisation {
+    id           String   @id @default(uuid()) @db.Uuid
+    email        String   @unique @db.VarChar(254)
+    passwordHash String   @map("password_hash") @db.Char(60)
+    name         String   @db.VarChar(120)
+    bio          String?  @db.Text
+    createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp()
+
+    projects Project[]
+
+    @@map("organisations")
+}
+
+model Project {
+    id             String @id @default(uuid()) @db.Uuid
+    label          String @db.VarChar(120)
+    organisationId String @map("organisation_id") @db.Uuid
+
+    owner       Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+    departments Department[]
+    timeSlots   TimeSlot[]
+    roomTypes   RoomType[]
+    rooms       Room[]
+    subjects    Subject[]
+    faculties   Faculty[]
+    divisions   Division[]
+
+    @@unique([organisationId, label])
+    @@map("projects")
+}
+
+model Department {
+    id        String @id @default(uuid()) @db.Uuid
+    name      String @db.VarChar(120)
+    projectId String @map("project_id") @db.Uuid
+
+    project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    rooms   Room[]
+
+    @@unique([projectId, name])
+    @@map("departments")
+}
+
+// manual check constraints to be added in the next migration:
+//    - `start_minutes` & `end_minutes` must be in range [0, 1440)
+model TimeSlot {
+    id           String @id @default(uuid()) @db.Uuid
+    name         String @db.VarChar(120)
+    day          Day
+    startMinutes Int    @map("start_minutes") @db.SmallInt
+    endMinutes   Int    @map("end_minutes") @db.SmallInt
+    projectId    String @map("project_id") @db.Uuid
+
+    project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+    @@unique([projectId, name])
+    @@map("time_slots")
+}
+
+model RoomType {
+    id        String @id @default(uuid()) @db.Uuid
+    name      String @db.VarChar(120)
+    projectId String @map("project_id") @db.Uuid
+
+    project  Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    rooms    Room[]
+    subjects Subject[]
+
+    @@unique([projectId, name])
+    @@map("room_types")
+}
+
+// manual check constraints to be added in the next migration:
+//    - `capacity` must be strictly positive
+model Room {
+    id           String @id @default(uuid()) @db.Uuid
+    code         String @db.VarChar(10)
+    capacity     Int
+    roomTypeId   String @map("room_type_id") @db.Uuid
+    projectId    String @map("project_id") @db.Uuid
+    departmentId String @map("department_id") @db.Uuid
+
+    roomType   RoomType   @relation(fields: [roomTypeId], references: [id], onDelete: Cascade)
+    project    Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+    @@unique([projectId, code])
+    @@map("rooms")
+}
+
+model Subject {
+    id         String @id @default(uuid()) @db.Uuid
+    code       String @db.VarChar(10)
+    name       String @db.VarChar(120)
+    roomTypeId String @map("room_type_id") @db.Uuid
+    projectId  String @map("project_id") @db.Uuid
+
+    roomType          RoomType  @relation(fields: [roomTypeId], references: [id], onDelete: Cascade)
+    project           Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    teachingFaculties Faculty[]
+
+    @@unique([projectId, code])
+    @@map("subjects")
+}
+
+model Faculty {
+    id        String @id @default(uuid()) @db.Uuid
+    code      String @db.VarChar(10)
+    name      String @db.VarChar(120)
+    projectId String @map("project_id") @db.Uuid
+
+    project        Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    taughtSubjects Subject[]
+
+    @@unique([projectId, code])
+    @@map("faculties")
+}
+
+model Division {
+    id        String @id @default(uuid()) @db.Uuid
+    code      String @db.VarChar(10)
+    strength  Int
+    projectId String @map("project_id") @db.Uuid
+
+    project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+    @@unique([projectId, code])
+    @@map("divisions")
+}
